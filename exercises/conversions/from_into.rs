@@ -3,6 +3,8 @@
 // You can read more about it at https://doc.rust-lang.org/std/convert/trait.From.html
 // Execute `rustlings hint from_into` or use the `hint` watch subcommand for a hint.
 
+use std::collections::hash_map::DefaultHasher;
+
 #[derive(Debug)]
 struct Person {
     name: String,
@@ -35,10 +37,23 @@ impl Default for Person {
 // If while parsing the age, something goes wrong, then return the default of Person
 // Otherwise, then return an instantiated Person object with the results
 
-// I AM NOT DONE
-
 impl From<&str> for Person {
     fn from(s: &str) -> Person {
+        if s.is_empty() {
+            return Default::default(); // 自动根据返回类型找其实现的default()函数
+        }
+
+        match s.split_once(',') {
+            Some((name, _)) if name.is_empty() => Default::default(),
+            Some((name, age_str)) => match age_str.parse::<usize>() {
+                Ok(age) => Person {
+                    name: name.to_string(),
+                    age,
+                },
+                Err(_) => Default::default(),
+            },
+            None => Default::default(),
+        }
     }
 }
 
